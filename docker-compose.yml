@@ -1,0 +1,43 @@
+## Docker Compose 
+version: '3.4'
+services:
+
+  app:
+    container_name: app
+    restart: always
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/src:/app
+    networks:
+        nyc-network:
+            aliases:
+                - flask-app
+
+  nginx:
+    container_name: nginx
+    restart: always
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    links:
+      - app
+    depends_on:
+      - 'app'
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+      - ./nginx/html:/etc/nginx/html
+      - ./nginx/nginx_root.conf:/etc/nginx/nginx.conf
+      - ./nginx/files:/etc/nginx/certs
+      - ./nginx/sites-enabled:/etc/nginx/conf.d/
+    networks:
+        nyc-network:
+            aliases:
+                - flask-app
+networks:
+  nyc-network:
+    
